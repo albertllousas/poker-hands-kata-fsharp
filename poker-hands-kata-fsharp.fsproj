@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>poker_hands_kata_fsharp</RootNamespace>
+    <WarningsAsErrors>25</WarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="tests\PokerHands.Tests.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Expecto" Version="10.2.1" />
+    <PackageReference Include="FSharpx.Extras" Version="3.2.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.14.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="readme.md" />
+    <Content Include=".gitignore" />
+  </ItemGroup>
+
+</Project>
