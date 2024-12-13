@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="src\PokerHands.fs" />
     <Compile Include="tests\PokerHands.Tests.fs" />
   </ItemGroup>
 
@@ -17,11 +18,6 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.14.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="readme.md" />
-    <Content Include=".gitignore" />
   </ItemGroup>
 
 </Project>
