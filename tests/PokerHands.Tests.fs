@@ -14,6 +14,14 @@ let tests = testList "Poker Hands tests" [
     let result = rank hand
     
     assertThat result HighCard
-  } 
+  }
+  
+  test "Should rank a hand with a Pair" {
+    let hand = "2H 2D 5S 9C KD"
+    
+    let result = rank hand
+    
+    assertThat result Pair
+  }
 ]  
   
