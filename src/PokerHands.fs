@@ -2,22 +2,18 @@ module PokerHands
 
 type HandRank = HighCard | Pair | TwoPairs | ThreeOfAKind
 
-let private countGroupsOfPairs (cards: string) =
+let private countGroupedRanksOfSize (size: int) (cards: string) =
   cards.Split(' ')
   |> Array.map (fun card -> card[0])
   |> Array.groupBy id
-  |> Array.filter (fun (_, group) -> group.Length = 2)
+  |> Array.filter (fun (_, group) -> group.Length = size)
   |> Array.length
 
-let private isPair (cards: string) = countGroupsOfPairs cards = 1
+let private isPair (cards: string) = countGroupedRanksOfSize 2 cards = 1
   
-let private isTwoPairs (cards: string) = countGroupsOfPairs cards = 2
+let private isTwoPairs (cards: string) = countGroupedRanksOfSize 2 cards = 2
 
-let private isThreeOfAKind (cards: string) =
-  cards.Split(' ')
-  |> Array.map (fun card -> card[0])
-  |> Array.groupBy id
-  |> Array.exists (fun (_, group) -> group.Length = 3)
+let private isThreeOfAKind (cards: string) = countGroupedRanksOfSize 3 cards = 1
 
 let rank (cards: string) =
   if isPair cards then Pair
