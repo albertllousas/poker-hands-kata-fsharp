@@ -4,7 +4,7 @@ type HandRank = HighCard | Pair | TwoPairs | ThreeOfAKind | FullHouse | FourOfAK
 
 let private groupByValueAndCount (cards: string) =
   cards.Split(' ')
-  |> Array.map (fun card -> card[0])
+  |> Array.map (fun card -> card.Substring(0, card.Length - 1))
   |> Array.groupBy id
   |> Array.map (fun (_, group) -> group.Length)
   |> Array.sortDescending
@@ -12,8 +12,8 @@ let private groupByValueAndCount (cards: string) =
   
 let private haveConsecutiveValues (cards: string) = 
   cards.Split(' ')
-  |> Array.map (fun card -> card[0])
-  |> Array.map (fun card -> match card with 'A' -> 14 | 'K' -> 13 | 'Q' -> 12 | 'J' -> 11 | _ -> int card )
+  |> Array.map (fun card -> card.Substring(0, card.Length - 1))
+  |> Array.map (fun card -> match card with "A" -> 14 | "K" -> 13 | "Q" -> 12 | "J" -> 11 | _ -> int card )
   |> Array.sort
   |> Array.pairwise
   |> Array.forall (fun (a, b) -> b = a + 1)
