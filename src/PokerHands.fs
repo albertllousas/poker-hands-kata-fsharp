@@ -1,6 +1,6 @@
 module PokerHands
 
-type HandRank = HighCard | Pair | TwoPairs | ThreeOfAKind | Straight | Flush | FullHouse | FourOfAKind
+type HandRank = HighCard | Pair | TwoPairs | ThreeOfAKind | Straight | Flush | FullHouse | FourOfAKind | StraightFlush
 
 let private groupByValueAndCount (cards: string) =
   cards.Split(' ')
@@ -24,10 +24,11 @@ let private haveSameSuit (cards: string) =
   cards.Split(' ')
   |> Array.map (fun card -> card[card.Length - 1])
   |> Array.distinct
-  |> Array.length = 1  
+  |> Array.length = 1
 
 let rank (cards: string) =
-  if groupByValueAndCount cards = [4; 1] then FourOfAKind
+  if haveSameSuit cards && haveConsecutiveValues cards then StraightFlush
+  elif groupByValueAndCount cards = [4; 1] then FourOfAKind
   elif groupByValueAndCount cards = [3; 2] then FullHouse
   elif haveSameSuit cards then Flush
   elif haveConsecutiveValues cards then Straight
