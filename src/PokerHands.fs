@@ -27,11 +27,11 @@ let private haveSameSuit (cards: string) =
   |> Array.length = 1  
 
 let rank (cards: string) =
-  if groupByValueAndCount cards = [2; 1; 1; 1] then Pair
-  elif groupByValueAndCount cards = [2; 2; 1] then TwoPairs
-  elif groupByValueAndCount cards = [3; 1; 1] then ThreeOfAKind
+  if groupByValueAndCount cards = [4; 1] then FourOfAKind
   elif groupByValueAndCount cards = [3; 2] then FullHouse
-  elif groupByValueAndCount cards = [4; 1] then FourOfAKind
-  elif haveConsecutiveValues cards then Straight
   elif haveSameSuit cards then Flush
+  elif haveConsecutiveValues cards then Straight
+  elif groupByValueAndCount cards = [3; 1; 1] then ThreeOfAKind
+  elif groupByValueAndCount cards = [2; 2; 1] then TwoPairs
+  elif groupByValueAndCount cards = [2; 1; 1; 1] then Pair
   else HighCard
