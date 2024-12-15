@@ -16,6 +16,7 @@ let tests = testList "Poker Hands tests" [
         ("2H 2D 6S 5C 2S", ThreeOfAKind)
         ("AD AS 5C 5S AH", FullHouse)
         ("KD AS KC KS KH", FourOfAKind)
+        ("2D 3D 4D 5D 6H", Straight)
         ]
     for cards, expectedRank in testCases do
       test $"Should rank {cards} with a {expectedRank}" {
