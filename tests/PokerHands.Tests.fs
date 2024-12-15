@@ -20,6 +20,7 @@ let tests = testList "Poker Hands tests" [
         ("7D 8D 9D 10D JH", Straight)
         ("AD 2D 3D 4D 5H", Straight)
         ("AD KD QD JD 10H", Straight)
+        ("2D 3D 5D 9D KD", Flush)
         ]
     for cards, expectedRank in testCases do
       test $"Should rank {cards} with a {expectedRank}" {
