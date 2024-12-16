@@ -30,5 +30,11 @@ let tests = testList "Poker Hands tests" [
         assertThat (rank cards) expectedRank 
       }
   ]
+  
+  test "Should compare two hands, a High Card and a Pair, and determine the winner" {
+    let result = compare "2H 3D 5S 9C 2D" "2H 3D 5S 9C KD"
+    
+    assertThat result (Winner(player = P1, rank = Pair, hand = "2H 3D 5S 9C 2D")) 
+  }
 ]  
   
