@@ -41,12 +41,12 @@ let rank (hand: string) =
   elif groupByValueAndCount cards = [2; 1; 1; 1] then Pair
   else HighCard
   
-let compare (p1Hand: string) (p2hand: string) : ComparisonResult =
+let compare (p1Hand: string) (p2Hand: string) : ComparisonResult =
   let idx rank = List.findIndex (fun r -> r = rank) [HighCard; Pair; TwoPairs; ThreeOfAKind; Straight; Flush; FullHouse; FourOfAKind; StraightFlush]
   let p1Rank = rank p1Hand  
-  let p2Rank = rank p2hand
+  let p2Rank = rank p2Hand
   if idx p1Rank > idx p2Rank
   then Winner(player = P1, rank = p1Rank, hand = p1Hand)
-  else Winner(player = P1, rank = p1Rank, hand = p1Hand) 
+  else Winner(player = P2, rank = p2Rank, hand = p2Hand) 
   
   

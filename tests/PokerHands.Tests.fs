@@ -31,10 +31,15 @@ let tests = testList "Poker Hands tests" [
       }
   ]
   
-  test "Should compare two hands, a High Card and a Pair, and determine the winner" {
-    let result = compare "2H 3D 5S 9C 2D" "2H 3D 5S 9C KD"
-    
-    assertThat result (Winner(player = P1, rank = Pair, hand = "2H 3D 5S 9C 2D")) 
-  }
+  testList "Compare hands scenarios" [
+    let testCases = 
+      [ ("2H 3D 5S 9C 2D", "2H 3D 5S 9C KD", (Winner(player = P1, rank = Pair, hand = "2H 3D 5S 9C 2D")))
+        ("2H 3D 5S 9C 2D", "2H 3D 2S 3C KD", (Winner(player = P2, rank = TwoPairs, hand = "2H 3D 2S 3C KD")))
+        ]
+    for p1Hand, p2Hand, expectedResult in testCases do
+      test $"Should compare two hands p1 '{p1Hand}' and p2 '{p2Hand}', with the result of {expectedResult}" {
+        assertThat (compare p1Hand p2Hand) expectedResult 
+      }
+  ]
 ]  
   
