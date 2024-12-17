@@ -33,13 +33,22 @@ let tests = testList "Poker Hands tests" [
   
   testList "Compare hands scenarios" [
     let testCases = 
-      [ ("2H 3D 5S 9C 2D", "2H 3D 5S 9C KD", (Winner(player = P1, rank = Pair, hand = "2H 3D 5S 9C 2D")))
-        ("2H 3D 5S 9C 2D", "2H 3D 2S 3C KD", (Winner(player = P2, rank = TwoPairs, hand = "2H 3D 2S 3C KD")))
+      [ ("2H 3D 5S 9C 2D", "2H 3D 5S 9C KD", Winner(player = P1, rank = Pair, hand = "2H 3D 5S 9C 2D"))
+        ("2H 3D 5S 9C 2D", "2H 3D 2S 3C KD", Winner(player = P2, rank = TwoPairs, hand = "2H 3D 2S 3C KD"))
+        ("2H 3D 2S 9C 2D", "2H 3D 2S 3C KD", Winner(player = P1, rank = ThreeOfAKind, hand = "2H 3D 2S 9C 2D"))
+        ("2H 3D 2S 9C 2D", "AD 2D 3D 4D 5H", Winner(player = P2, rank = Straight, hand = "AD 2D 3D 4D 5H"))
+        ("AD AS 5C 5S AH", "AD AS 5C 5S AH", Winner(player = P2, rank = FullHouse, hand = "AD AS 5C 5S AH"))
+        ("KD AS KC KS KH", "2H 3D 2S 3C KD", Winner(player = P1, rank = FourOfAKind, hand = "KD AS KC KS KH"))
+        ("2H 3D 5S 9C 2D", "AD KD QD JD 10D", Winner(player = P2, rank = StraightFlush, hand = "AD KD QD JD 10D"))
         ]
     for p1Hand, p2Hand, expectedResult in testCases do
       test $"Should compare two hands p1 '{p1Hand}' and p2 '{p2Hand}', with the result of {expectedResult}" {
         assertThat (compare p1Hand p2Hand) expectedResult 
       }
   ]
+  
+  test "" {
+    
+  }
 ]  
   
