@@ -31,7 +31,7 @@ let tests = testList "Poker Hands tests" [
       }
   ]
   
-  testList "Compare hands scenarios" [
+  testList "Decide winner of two different hands scenarios" [
     let testCases = 
       [ ("2H 3D 5S 9C 2D", "2H 3D 5S 9C KD", Winner(player = P1, rank = Pair, hand = "2H 3D 5S 9C 2D"))
         ("2H 3D 5S 9C 2D", "2H 3D 2S 3C KD", Winner(player = P2, rank = TwoPairs, hand = "2H 3D 2S 3C KD"))
@@ -43,12 +43,8 @@ let tests = testList "Poker Hands tests" [
         ]
     for p1Hand, p2Hand, expectedResult in testCases do
       test $"Should compare two hands p1 '{p1Hand}' and p2 '{p2Hand}', with the result of {expectedResult}" {
-        assertThat (compare p1Hand p2Hand) expectedResult 
+        assertThat (decideWinner p1Hand p2Hand) expectedResult 
       }
   ]
-  
-  test "" {
-    
-  }
 ]  
   
