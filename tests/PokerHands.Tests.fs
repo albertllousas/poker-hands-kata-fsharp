@@ -42,7 +42,7 @@ let tests = testList "Poker Hands tests" [
         ("2H 3D 5S 9C 2D", "AD KD QD JD 10D", Winner(player = P2, rank = StraightFlush, hand = "AD KD QD JD 10D"))
         ]
     for p1Hand, p2Hand, expectedResult in testCases do
-      test $"Should compare two hands p1 '{p1Hand}' and p2 '{p2Hand}', with the result of {expectedResult}" {
+      test $"Should decide the winner two hands p1 '{p1Hand}' and p2 '{p2Hand}', with the result of {expectedResult}" {
         assertThat (decideWinner p1Hand p2Hand) expectedResult 
       }
   ]

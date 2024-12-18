@@ -4,7 +4,7 @@ type HandRank = HighCard | Pair | TwoPairs | ThreeOfAKind | Straight | Flush | F
 
 type Player = P1 | P2
 
-type ComparisonResult = Winner of player: Player * rank: HandRank * hand: string
+type Winner = Winner of player: Player * rank: HandRank * hand: string
 
 let private groupByValueAndCount (cards: string list) =
   cards
@@ -41,7 +41,7 @@ let rank (hand: string) =
   elif groupByValueAndCount cards = [2; 1; 1; 1] then Pair
   else HighCard
   
-let decideWinner (p1Hand: string) (p2Hand: string) : ComparisonResult =
+let decideWinner (p1Hand: string) (p2Hand: string) : Winner =
   let idx rank = List.findIndex (fun r -> r = rank) [HighCard; Pair; TwoPairs; ThreeOfAKind; Straight; Flush; FullHouse; FourOfAKind; StraightFlush]
   let p1Rank = rank p1Hand  
   let p2Rank = rank p2Hand
