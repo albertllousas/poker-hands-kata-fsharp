@@ -28,6 +28,16 @@ let private haveSameSuit (cards: string list) =
   |> List.map (fun card -> card[card.Length - 1])
   |> List.distinct
   |> List.length = 1
+  
+let private breakTie (p1Hand, p1Rank) (p2Hand, p2Rank) =
+  let highestCard (hand: string) =
+    hand.Split(' ')
+    |> Array.toList
+    |> List.map (fun card -> card.Substring(0, card.Length - 1))
+    |> List.map (fun card -> match card with "A" -> 14 | "K" -> 13 | "Q" -> 12 | "J" -> 11 | _ -> int card )
+    |> List.max
+  if highestCard p1Hand > highestCard p2Hand then Winner(player = P1, rank = p1Rank, hand = p1Hand)
+  else  Winner(player = P2, rank = p2Rank, hand = p2Hand)
 
 let rank (hand: string) =
   let cards = hand.Split(' ') |> Array.toList
@@ -45,8 +55,8 @@ let decideWinner (p1Hand: string) (p2Hand: string) : Winner =
   let idx rank = List.findIndex (fun r -> r = rank) [HighCard; Pair; TwoPairs; ThreeOfAKind; Straight; Flush; FullHouse; FourOfAKind; StraightFlush]
   let p1Rank = rank p1Hand  
   let p2Rank = rank p2Hand
-  if idx p1Rank > idx p2Rank
-  then Winner(player = P1, rank = p1Rank, hand = p1Hand)
-  else Winner(player = P2, rank = p2Rank, hand = p2Hand) 
+  if idx p1Rank > idx p2Rank then Winner(player = P1, rank = p1Rank, hand = p1Hand)
+  elif idx p1Rank < idx p2Rank then  Winner(player = P2, rank = p2Rank, hand = p2Hand)
+  else breakTie (p1Hand, p1Rank) (p2Hand, p2Rank)
   
   
