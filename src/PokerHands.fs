@@ -12,30 +12,25 @@ let private groupByValueAndCount (cards: string list) =
   |> List.groupBy id
   |> List.map (fun (_, group) -> group.Length)
   |> List.sortDescending
+
+let private mapCardValues (aceValue: int) (hand: string list)  =
+  List.map (fun (card:string) -> card.Substring(0, card.Length - 1)) hand
+  |> List.map (fun card -> match card with "A" -> aceValue | "K" -> 13 | "Q" -> 12 | "J" -> 11 | _ -> int card )
   
 let private haveConsecutiveValues (cards: string list) = 
   let consecutiveCards aceValue =
     cards
-    |> List.map (fun card -> card.Substring(0, card.Length - 1))
-    |> List.map (fun card -> match card with "A" -> aceValue | "K" -> 13 | "Q" -> 12 | "J" -> 11 | _ -> int card )
+    |> mapCardValues aceValue
     |> List.sort
     |> List.pairwise
     |> List.forall (fun (a, b) -> b = a + 1)
   consecutiveCards 1 || consecutiveCards 14
   
 let private haveSameSuit (cards: string list) =
-  cards
-  |> List.map (fun card -> card[card.Length - 1])
-  |> List.distinct
-  |> List.length = 1
-  
+  cards |> List.map (fun card -> card[card.Length - 1]) |> List.distinct |> List.length = 1
+ 
 let private breakTie (p1Hand, p1Rank) (p2Hand, p2Rank) =
-  let highestCard (hand: string) =
-    hand.Split(' ')
-    |> Array.toList
-    |> List.map (fun card -> card.Substring(0, card.Length - 1))
-    |> List.map (fun card -> match card with "A" -> 14 | "K" -> 13 | "Q" -> 12 | "J" -> 11 | _ -> int card )
-    |> List.max
+  let highestCard (hand: string) = hand.Split(' ') |> Array.toList |> mapCardValues 14 |> List.max
   if highestCard p1Hand > highestCard p2Hand then Winner(player = P1, rank = p1Rank, hand = p1Hand)
   else  Winner(player = P2, rank = p2Rank, hand = p2Hand)
 
@@ -58,5 +53,4 @@ let decideWinner (p1Hand: string) (p2Hand: string) : Winner =
   if idx p1Rank > idx p2Rank then Winner(player = P1, rank = p1Rank, hand = p1Hand)
   elif idx p1Rank < idx p2Rank then  Winner(player = P2, rank = p2Rank, hand = p2Hand)
   else breakTie (p1Hand, p1Rank) (p2Hand, p2Rank)
-  
   
