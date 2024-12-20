@@ -33,14 +33,15 @@ let tests = testList "Poker Hands tests" [
   
   testList "Decide winner of two different hands scenarios" [
     let testCases = 
-      [ ("2H 3D 5S 9C 2D", "2H 3D 5S 9C KD", Winner(player = P1, rank = Pair, hand = "2H 3D 5S 9C 2D"))
-        ("2H 3D 5S 9C 2D", "2H 3D 2S 3C KD", Winner(player = P2, rank = TwoPairs, hand = "2H 3D 2S 3C KD"))
-        ("2H 3D 2S 9C 2D", "2H 3D 2S 3C KD", Winner(player = P1, rank = ThreeOfAKind, hand = "2H 3D 2S 9C 2D"))
-        ("2H 3D 2S 9C 2D", "AD 2D 3D 4D 5H", Winner(player = P2, rank = Straight, hand = "AD 2D 3D 4D 5H"))
-        ("AD AS 5C 5S AH", "AD AS 5C 5S AH", Winner(player = P2, rank = FullHouse, hand = "AD AS 5C 5S AH"))
-        ("KD AS KC KS KH", "2H 3D 2S 3C KD", Winner(player = P1, rank = FourOfAKind, hand = "KD AS KC KS KH"))
-        ("2H 3D 5S 9C 2D", "AD KD QD JD 10D", Winner(player = P2, rank = StraightFlush, hand = "AD KD QD JD 10D"))
-        ("2H 3D 5S 9C KD", "2C 3H 4S 8C AH", Winner(player = P2, rank = HighCard, hand = "2C 3H 4S 8C AH"))
+      [ ("2H 3D 5S 9C 2D", "2H 3D 5S 9C KD", Winner(P1, Pair, "2H 3D 5S 9C 2D", None))
+        ("2H 3D 5S 9C 2D", "2H 3D 2S 3C KD", Winner(P2, TwoPairs, "2H 3D 2S 3C KD", None))
+        ("2H 3D 2S 9C 2D", "2H 3D 2S 3C KD", Winner(P1, ThreeOfAKind, "2H 3D 2S 9C 2D", None))
+        ("2H 3D 2S 9C 2D", "AD 2D 3D 4D 5H", Winner(P2, Straight, "AD 2D 3D 4D 5H", None))
+        ("AD AS 5C 4S AH", "AD AS 5C 5S AH", Winner(P2, FullHouse, "AD AS 5C 5S AH", None))
+        ("KD AS KC KS KH", "2H 3D 2S 3C KD", Winner(P1, FourOfAKind, "KD AS KC KS KH", None))
+        ("2H 3D 5S 9C 2D", "AD KD QD JD 10D", Winner(P2, StraightFlush, "AD KD QD JD 10D", None))
+        ("2H 3D 5S 9C KD", "2C 3H 4S 8C AH", Winner(P2, HighCard, "2C 3H 4S 8C AH", None))
+        ("2H 3D 5S 9C KD", "2C 3H 4S 8C KH", Winner(P1, HighCard, "2H 3D 5S 9C KD", kicker = Some "9"))
         ]
     for p1Hand, p2Hand, expectedResult in testCases do
       test $"Should decide the winner two hands p1 '{p1Hand}' and p2 '{p2Hand}', with the result of {expectedResult}" {
