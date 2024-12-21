@@ -34,8 +34,11 @@ module private Cards =
     let hand2Values = List.map fst hand2
     List.filter (fun (value, _) -> not (List.contains value hand2Values)) hand1
     
-  let filterOutSingleCards (hand: Card list) =
-    hand |> List.groupBy fst |> List.filter (fun (_, group) -> not (group.Length = 1)) |> List.map snd |> List.concat
+  let getPairs (hand: Card list) =
+    hand |> List.groupBy fst |> List.filter (fun (_, group) -> group.Length = 2) |> List.map snd |> List.concat
+    
+  let getTrios (hand: Card list) =
+    hand |> List.groupBy fst |> List.filter (fun (_, group) -> group.Length = 3) |> List.map snd |> List.concat
 
 module private TieBreaker =
   
@@ -59,13 +62,18 @@ module private TieBreaker =
         elif highestVal p1Hand < highestVal p2Hand then Winner(P2, p2Rank, p2Hand, None)
         else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
       | Pair, Pair | TwoPairs, TwoPairs | ThreeOfAKind, ThreeOfAKind ->
-        let p1PairsOrTrios = Cards.filterOutSingleCards p1Hand 
-        let p2PairsOrTrios = Cards.filterOutSingleCards p2Hand
+        let p1PairsOrTrios = (Cards.getPairs p1Hand) @ (Cards.getTrios p1Hand) 
+        let p2PairsOrTrios = (Cards.getPairs p2Hand) @ (Cards.getTrios p2Hand) 
         let p1MaxPair = Cards.rmDuplicateValues p1PairsOrTrios p2PairsOrTrios |> List.map fst |> maxOrNone
         let p2MaxPair = Cards.rmDuplicateValues p2PairsOrTrios p1PairsOrTrios |> List.map fst |> maxOrNone
         if p1MaxPair.IsSome && p1MaxPair > p2MaxPair then Winner(P1, p1Rank, p1Hand, None)
         elif p1MaxPair.IsSome && p1MaxPair < p2MaxPair then Winner(P2, p2Rank, p2Hand, None)
-        else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)  
+        else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
+      | FullHouse, FullHouse ->
+         let p1MaxTrio = Cards.getTrios p1Hand |> List.map fst |> List.max
+         let p2MaxTrio = Cards.getTrios p1Hand |> List.map fst |> List.max
+         if p1MaxTrio > p2MaxTrio then Winner(P1, p1Rank, p1Hand, None)
+         else Winner(P2, p2Rank, p2Hand, None)
       | _ -> failwith "Not implemented"
 
 module Hands =
