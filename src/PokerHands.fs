@@ -54,7 +54,7 @@ module private TieBreaker =
     
   let breakTie (p1Hand, p1Rank) (p2Hand, p2Rank) =
     match (p1Rank, p2Rank) with
-      | HighCard, HighCard | Straight, Straight -> 
+      | HighCard, HighCard | Straight, Straight | Flush, Flush ->
         if highestVal p1Hand > highestVal p2Hand then Winner(P1, p1Rank, p1Hand, None)
         elif highestVal p1Hand < highestVal p2Hand then Winner(P2, p2Rank, p2Hand, None)
         else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
