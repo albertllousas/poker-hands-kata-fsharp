@@ -96,6 +96,9 @@ let tests = testList "Poker Hands tests" [
         ([(3,C);(3,D);(3,H);(9,D);(9,H)],
          [(2,C);(2,C);(2,C);(10,C);(10,C)],
          Winner(P2, FullHouse, [(2,C);(2,C);(2,C);(10,C);(10,C)], kicker = None))
+        ([(3,C);(3,D);(3,H);(3,D);(9,H)],
+         [(2,C);(2,C);(2,C);(3,C);(10,C)],
+         Winner(P1, FourOfAKind, [(3,C);(3,D);(3,H);(3,D);(9,H)], kicker = None))
        ]
    for p1Hand, p2Hand, expectedResult in testCases do
      test $"Should decide the winner two hands p1 '{p1Hand}' and p2 '{p2Hand}', with the result of {expectedResult}" {

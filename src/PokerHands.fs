@@ -39,6 +39,9 @@ module private Cards =
     
   let getTrios (hand: Card list) =
     hand |> List.groupBy fst |> List.filter (fun (_, group) -> group.Length = 3) |> List.map snd |> List.concat
+    
+  let getFourOfAKind (hand: Card list) =
+    hand |> List.groupBy fst |> List.filter (fun (_, group) -> group.Length = 4) |> List.map snd |> List.concat
 
 module private TieBreaker =
   
@@ -69,10 +72,10 @@ module private TieBreaker =
         if p1MaxPair.IsSome && p1MaxPair > p2MaxPair then Winner(P1, p1Rank, p1Hand, None)
         elif p1MaxPair.IsSome && p1MaxPair < p2MaxPair then Winner(P2, p2Rank, p2Hand, None)
         else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
-      | FullHouse, FullHouse ->
-         let p1MaxTrio = Cards.getTrios p1Hand |> List.map fst |> List.max
-         let p2MaxTrio = Cards.getTrios p1Hand |> List.map fst |> List.max
-         if p1MaxTrio > p2MaxTrio then Winner(P1, p1Rank, p1Hand, None)
+      | FullHouse, FullHouse | FourOfAKind , FourOfAKind ->
+         let p1Max = (Cards.getPairs p1Hand) @ (Cards.getFourOfAKind p1Hand) |> List.map fst |> List.max
+         let p2Max = (Cards.getPairs p1Hand) @ (Cards.getFourOfAKind p1Hand) |> List.map fst |> List.max
+         if p1Max > p2Max then Winner(P1, p1Rank, p1Hand, None)
          else Winner(P2, p2Rank, p2Hand, None)
       | _ -> failwith "Not implemented"
 
