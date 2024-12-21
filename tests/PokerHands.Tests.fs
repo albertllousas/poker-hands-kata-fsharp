@@ -31,7 +31,7 @@ let tests = testList "Poker Hands tests" [
       }
   ]
 
-  testList "Decide winner of two different hands scenarios" [
+  testList "Decide winner of two different ranked hands scenarios" [
     let testCases = 
       [ ([(2,H);(3,D);(5,S);(9,C);(2,D)],
          [(2,H);(3,D);(5,S);(9,C);(13,D)],
@@ -55,6 +55,18 @@ let tests = testList "Poker Hands tests" [
          [(14,D);(13,D);(12,D);(11,D);(10,D)],
          Winner(P2, StraightFlush, [(14,D);(13,D);(12,D);(11,D);(10,D)], None))
         ([(2,H);(3,D);(5,S);(9,C);(13,D)],
+         [(2,C);(3,H);(4,S);(8,C);(14,H)],
+         Winner(P2, HighCard, [(2,C);(3,H);(4,S);(8,C);(14,H)], None))
+        ]
+    for p1Hand, p2Hand, expectedResult in testCases do
+      test $"Should decide the winner two hands p1 '{p1Hand}' and p2 '{p2Hand}', with the result of {expectedResult}" {
+        assertThat (Hands.decideWinner p1Hand p2Hand) expectedResult 
+      }
+    ]
+    
+  testList "Decide winner of same ranked hands scenarios" [
+    let testCases = 
+      [ ([(2,H);(3,D);(5,S);(9,C);(13,D)],
          [(2,C);(3,H);(4,S);(8,C);(14,H)],
          Winner(P2, HighCard, [(2,C);(3,H);(4,S);(8,C);(14,H)], None))
         ([(2,H);(3,D);(5,S);(9,C);(13,D)],
@@ -81,11 +93,11 @@ let tests = testList "Poker Hands tests" [
         ([(2,D);(3,D);(5,D);(9,D);(13,D)],
          [(2,C);(3,C);(5,C);(9,C);(14,C)],
          Winner(P2, Flush, [(2,C);(3,C);(5,C);(9,C);(14,C)], kicker = None))
-        ]
-    for p1Hand, p2Hand, expectedResult in testCases do
-      test $"Should decide the winner two hands p1 '{p1Hand}' and p2 '{p2Hand}', with the result of {expectedResult}" {
-        assertThat (Hands.decideWinner p1Hand p2Hand) expectedResult 
-      }
-  ]
+       ]
+   for p1Hand, p2Hand, expectedResult in testCases do
+     test $"Should decide the winner two hands p1 '{p1Hand}' and p2 '{p2Hand}', with the result of {expectedResult}" {
+       assertThat (Hands.decideWinner p1Hand p2Hand) expectedResult 
+     }  
+   ]
 ]  
   
