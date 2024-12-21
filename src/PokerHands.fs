@@ -1,5 +1,7 @@
 module PokerHands
 
+open Expecto.Expect
+
 type HandRank = HighCard | Pair | TwoPairs | ThreeOfAKind | Straight | Flush | FullHouse | FourOfAKind | StraightFlush
 
 type Suit = H | D | S | C 
@@ -39,24 +41,28 @@ module private Cards =
 
 module private TieBreaker =
   
-  let valueToCard (value: int) =
+  let private valueToCard (value: int) =
     match value with | 14 -> "A" | 1 -> "A" | 13 -> "K" | 12 -> "Q" | 11 -> "J" | _ -> value.ToString()
-   
+    
+  let highestVal (hand: Card list) = hand |> List.max |> fst
+  
+  let private breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank) = 
+    let p1Kicker = Cards.rmDuplicateValues p1Hand p2Hand |> highestVal
+    let p2Kicker = Cards.rmDuplicateValues p2Hand p1Hand |> highestVal
+    if p1Kicker > p2Kicker then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = Some p1Kicker)
+    else Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = Some p2Kicker)
+    
   let breakTie (p1Hand, p1Rank) (p2Hand, p2Rank) =
     if (p1Rank = HighCard && p2Rank = HighCard) then
-      let highestVal (hand: Card list) = hand |> List.max |> fst
       if highestVal p1Hand > highestVal p2Hand then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
       elif highestVal p1Hand < highestVal p2Hand then Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
-      else
-        let p1Kicker = Cards.rmDuplicateValues p1Hand p2Hand |> highestVal
-        let p2Kicker = Cards.rmDuplicateValues p2Hand p1Hand |> highestVal
-        if p1Kicker > p2Kicker then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = Some p1Kicker)
-        else Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = Some p2Kicker)
+      else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
     else
-      let p1MaxPair = Cards.getPairs p1Hand |> List.max
-      let p2MaxPair = Cards.getPairs p2Hand |> List.max
+      let p1MaxPair = Cards.getPairs p1Hand |> List.max |> fst
+      let p2MaxPair = Cards.getPairs p2Hand |> List.max |> fst
       if p1MaxPair > p2MaxPair then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
-      else Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
+      elif p1MaxPair < p2MaxPair then Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
+      else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
 
 module Hands =
   
