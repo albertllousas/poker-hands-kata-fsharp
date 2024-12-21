@@ -34,8 +34,8 @@ module private Cards =
     let hand2Values = List.map fst hand2
     List.filter (fun (value, _) -> not (List.contains value hand2Values)) hand1
     
-  let getPairs (hand: Card list) =
-    hand |> List.groupBy fst |> List.filter (fun (_, group) -> group.Length = 2) |> List.map snd |> List.concat
+  let filterOutSingleCards (hand: Card list) =
+    hand |> List.groupBy fst |> List.filter (fun (_, group) -> not (group.Length = 1)) |> List.map snd |> List.concat
 
 module private TieBreaker =
   
@@ -58,11 +58,11 @@ module private TieBreaker =
         if highestVal p1Hand > highestVal p2Hand then Winner(P1, p1Rank, p1Hand, None)
         elif highestVal p1Hand < highestVal p2Hand then Winner(P2, p2Rank, p2Hand, None)
         else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
-      | Pair, Pair | TwoPairs, TwoPairs ->
-        let p1Pairs = Cards.getPairs p1Hand 
-        let p2Pairs = Cards.getPairs p2Hand
-        let p1MaxPair = Cards.rmDuplicateValues p1Pairs p2Pairs |> List.map fst |> maxOrNone
-        let p2MaxPair = Cards.rmDuplicateValues p2Pairs p1Pairs |> List.map fst |> maxOrNone
+      | Pair, Pair | TwoPairs, TwoPairs | ThreeOfAKind, ThreeOfAKind ->
+        let p1PairsOrTrios = Cards.filterOutSingleCards p1Hand 
+        let p2PairsOrTrios = Cards.filterOutSingleCards p2Hand
+        let p1MaxPair = Cards.rmDuplicateValues p1PairsOrTrios p2PairsOrTrios |> List.map fst |> maxOrNone
+        let p2MaxPair = Cards.rmDuplicateValues p2PairsOrTrios p1PairsOrTrios |> List.map fst |> maxOrNone
         if p1MaxPair.IsSome && p1MaxPair > p2MaxPair then Winner(P1, p1Rank, p1Hand, None)
         elif p1MaxPair.IsSome && p1MaxPair < p2MaxPair then Winner(P2, p2Rank, p2Hand, None)
         else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)  
