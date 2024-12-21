@@ -53,16 +53,26 @@ module private TieBreaker =
     else Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = Some p2Kicker)
     
   let breakTie (p1Hand, p1Rank) (p2Hand, p2Rank) =
-    if (p1Rank = HighCard && p2Rank = HighCard) then
-      if highestVal p1Hand > highestVal p2Hand then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
-      elif highestVal p1Hand < highestVal p2Hand then Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
-      else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
-    else
-      let p1MaxPair = Cards.getPairs p1Hand |> List.max |> fst
-      let p2MaxPair = Cards.getPairs p2Hand |> List.max |> fst
-      if p1MaxPair > p2MaxPair then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
-      elif p1MaxPair < p2MaxPair then Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
-      else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
+    match (p1Rank, p2Rank) with
+      | HighCard, HighCard -> 
+        if highestVal p1Hand > highestVal p2Hand then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
+        elif highestVal p1Hand < highestVal p2Hand then Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
+        else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
+      | Pair, Pair ->
+        let p1MaxPair = Cards.getPairs p1Hand |> List.max |> fst
+        let p2MaxPair = Cards.getPairs p2Hand |> List.max |> fst
+        if p1MaxPair > p2MaxPair then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
+        elif p1MaxPair < p2MaxPair then Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
+        else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
+      | TwoPairs, TwoPairs ->
+        let p1Pairs = Cards.getPairs p1Hand 
+        let p2Pairs = Cards.getPairs p2Hand
+        let p1MaxPair = Cards.rmDuplicateValues p1Pairs p2Pairs |> List.map fst  |> List.max
+        let p2MaxPair = Cards.rmDuplicateValues p2Pairs p1Pairs |> List.map fst  |> List.max
+        if p1MaxPair > p2MaxPair then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
+        elif p1MaxPair < p2MaxPair then Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
+        else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)  
+      | _ -> failwith "Not implemented"
 
 module Hands =
   
