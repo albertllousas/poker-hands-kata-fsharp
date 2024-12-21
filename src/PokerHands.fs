@@ -27,32 +27,25 @@ module private Cards =
       |> List.forall (fun (a, b) -> b = a + 1)
     consecutiveCards 1 || consecutiveCards 14
     
-  let haveSameSuit (cards: Card list) =
-    cards |> List.map snd |> List.distinct |> List.length = 1
+  let haveSameSuit (cards: Card list) = cards |> List.map snd |> List.distinct |> List.length = 1
     
-  let rmDuplicateValues (hand1: Card list) (hand2: Card list ) =
-    let hand2Values = List.map fst hand2
-    List.filter (fun (value, _) -> not (List.contains value hand2Values)) hand1
+  let remove (cards: Card list) (toRemove: Card list ) =
+    let valuesToRemove = List.map fst toRemove
+    List.filter (fun (value, _) -> not (List.contains value valuesToRemove)) cards
+  
+  let discardSingleCards (hand: Card list) =
+    hand |> List.groupBy fst |> List.filter (fun (_, group) -> not (group.Length = 1)) |> List.map snd |> List.concat
     
-  let getPairs (hand: Card list) =
-    hand |> List.groupBy fst |> List.filter (fun (_, group) -> group.Length = 2) |> List.map snd |> List.concat
-    
-  let getTrios (hand: Card list) =
-    hand |> List.groupBy fst |> List.filter (fun (_, group) -> group.Length = 3) |> List.map snd |> List.concat
-    
-  let getFourOfAKind (hand: Card list) =
-    hand |> List.groupBy fst |> List.filter (fun (_, group) -> group.Length = 4) |> List.map snd |> List.concat
+  let highestVal (hand: Card list) = hand |> List.max |> fst
 
 module private TieBreaker =
   
   let private valueToCard (value: int) =
     match value with | 14 -> "A" | 1 -> "A" | 13 -> "K" | 12 -> "Q" | 11 -> "J" | _ -> value.ToString()
     
-  let highestVal (hand: Card list) = hand |> List.max |> fst
-  
   let private breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank) = 
-    let p1Kicker = Cards.rmDuplicateValues p1Hand p2Hand |> highestVal
-    let p2Kicker = Cards.rmDuplicateValues p2Hand p1Hand |> highestVal
+    let p1Kicker = Cards.remove p1Hand p2Hand |> Cards.highestVal
+    let p2Kicker = Cards.remove p2Hand p1Hand |> Cards.highestVal
     if p1Kicker > p2Kicker then Winner(P1, p1Rank, p1Hand, Some p1Kicker)
     else Winner(P2, p2Rank, p2Hand, Some p2Kicker)
     
@@ -61,20 +54,20 @@ module private TieBreaker =
   let breakTie (p1Hand, p1Rank) (p2Hand, p2Rank) =
     match (p1Rank, p2Rank) with
       | HighCard, HighCard | Straight, Straight | Flush, Flush ->
-        if highestVal p1Hand > highestVal p2Hand then Winner(P1, p1Rank, p1Hand, None)
-        elif highestVal p1Hand < highestVal p2Hand then Winner(P2, p2Rank, p2Hand, None)
+        if Cards.highestVal p1Hand > Cards.highestVal p2Hand then Winner(P1, p1Rank, p1Hand, None)
+        elif Cards.highestVal p1Hand < Cards.highestVal p2Hand then Winner(P2, p2Rank, p2Hand, None)
         else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
       | Pair, Pair | TwoPairs, TwoPairs | ThreeOfAKind, ThreeOfAKind ->
-        let p1PairsOrTrios = (Cards.getPairs p1Hand) @ (Cards.getTrios p1Hand) 
-        let p2PairsOrTrios = (Cards.getPairs p2Hand) @ (Cards.getTrios p2Hand) 
-        let p1MaxPair = Cards.rmDuplicateValues p1PairsOrTrios p2PairsOrTrios |> List.map fst |> maxOrNone
-        let p2MaxPair = Cards.rmDuplicateValues p2PairsOrTrios p1PairsOrTrios |> List.map fst |> maxOrNone
+        let p1PairsOrTrios = Cards.discardSingleCards p1Hand  
+        let p2PairsOrTrios = Cards.discardSingleCards p2Hand 
+        let p1MaxPair = Cards.remove p1PairsOrTrios p2PairsOrTrios |> List.map fst |> maxOrNone
+        let p2MaxPair = Cards.remove p2PairsOrTrios p1PairsOrTrios |> List.map fst |> maxOrNone
         if p1MaxPair.IsSome && p1MaxPair > p2MaxPair then Winner(P1, p1Rank, p1Hand, None)
         elif p1MaxPair.IsSome && p1MaxPair < p2MaxPair then Winner(P2, p2Rank, p2Hand, None)
         else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
       | FullHouse, FullHouse | FourOfAKind , FourOfAKind ->
-         let p1Max = (Cards.getPairs p1Hand) @ (Cards.getFourOfAKind p1Hand) |> List.map fst |> List.max
-         let p2Max = (Cards.getPairs p1Hand) @ (Cards.getFourOfAKind p1Hand) |> List.map fst |> List.max
+         let p1Max = Cards.discardSingleCards p1Hand |> List.map fst |> List.max
+         let p2Max = Cards.discardSingleCards p2Hand |> List.map fst |> List.max
          if p1Max > p2Max then Winner(P1, p1Rank, p1Hand, None)
          else Winner(P2, p2Rank, p2Hand, None)
       | _ -> failwith "Not implemented"
