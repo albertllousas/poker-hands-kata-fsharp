@@ -1,7 +1,5 @@
 module PokerHands
 
-open Expecto.Expect
-
 type HandRank = HighCard | Pair | TwoPairs | ThreeOfAKind | Straight | Flush | FullHouse | FourOfAKind | StraightFlush
 
 type Suit = H | D | S | C 
@@ -49,24 +47,24 @@ module private TieBreaker =
   let private breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank) = 
     let p1Kicker = Cards.rmDuplicateValues p1Hand p2Hand |> highestVal
     let p2Kicker = Cards.rmDuplicateValues p2Hand p1Hand |> highestVal
-    if p1Kicker > p2Kicker then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = Some p1Kicker)
-    else Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = Some p2Kicker)
+    if p1Kicker > p2Kicker then Winner(P1, p1Rank, p1Hand, Some p1Kicker)
+    else Winner(P2, p2Rank, p2Hand, Some p2Kicker)
     
   let private maxOrNone list = if List.isEmpty list then None else Some (List.max list)
     
   let breakTie (p1Hand, p1Rank) (p2Hand, p2Rank) =
     match (p1Rank, p2Rank) with
       | HighCard, HighCard -> 
-        if highestVal p1Hand > highestVal p2Hand then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
-        elif highestVal p1Hand < highestVal p2Hand then Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
+        if highestVal p1Hand > highestVal p2Hand then Winner(P1, p1Rank, p1Hand, None)
+        elif highestVal p1Hand < highestVal p2Hand then Winner(P2, p2Rank, p2Hand, None)
         else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
       | Pair, Pair | TwoPairs, TwoPairs ->
         let p1Pairs = Cards.getPairs p1Hand 
         let p2Pairs = Cards.getPairs p2Hand
         let p1MaxPair = Cards.rmDuplicateValues p1Pairs p2Pairs |> List.map fst |> maxOrNone
         let p2MaxPair = Cards.rmDuplicateValues p2Pairs p1Pairs |> List.map fst |> maxOrNone
-        if p1MaxPair.IsSome && p1MaxPair > p2MaxPair then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
-        elif p1MaxPair.IsSome && p1MaxPair < p2MaxPair then Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
+        if p1MaxPair.IsSome && p1MaxPair > p2MaxPair then Winner(P1, p1Rank, p1Hand, None)
+        elif p1MaxPair.IsSome && p1MaxPair < p2MaxPair then Winner(P2, p2Rank, p2Hand, None)
         else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)  
       | _ -> failwith "Not implemented"
 
@@ -87,7 +85,7 @@ module Hands =
     let idx rank = List.findIndex (fun r -> r = rank) [HighCard; Pair; TwoPairs; ThreeOfAKind; Straight; Flush; FullHouse; FourOfAKind; StraightFlush]
     let p1Rank = rank p1Hand  
     let p2Rank = rank p2Hand
-    if idx p1Rank > idx p2Rank then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
-    elif idx p1Rank < idx p2Rank then  Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
+    if idx p1Rank > idx p2Rank then Winner(P1, p1Rank, p1Hand, None)
+    elif idx p1Rank < idx p2Rank then  Winner(P2, p2Rank, p2Hand, None)
     else TieBreaker.breakTie (p1Hand, p1Rank) (p2Hand, p2Rank)
   
