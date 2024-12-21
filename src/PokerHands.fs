@@ -21,7 +21,7 @@ module private Cards =
   let haveConsecutiveValues (cards: Card list) = 
     let consecutiveCards aceValue =
       cards
-      |> mapCardValues aceValue
+      |> List.map (fun (value, _) -> if value = 14 then aceValue else value)
       |> List.sort
       |> List.pairwise
       |> List.forall (fun (a, b) -> b = a + 1)
@@ -31,7 +31,7 @@ module private Cards =
     cards |> List.map snd |> List.distinct |> List.length = 1
     
   let rmDuplicateValues (hand1: Card list) (hand2: Card list ) =
-    let hand2Values = mapCardValues 14 hand2
+    let hand2Values = List.map fst hand2
     List.filter (fun (value, _) -> not (List.contains value hand2Values)) hand1
     
   let getPairs (hand: Card list) =
@@ -42,14 +42,14 @@ module private TieBreaker =
   let valueToCard (value: int) =
     match value with | 14 -> "A" | 1 -> "A" | 13 -> "K" | 12 -> "Q" | 11 -> "J" | _ -> value.ToString()
    
-  let decideWinner (p1Hand, p1Rank) (p2Hand, p2Rank) =
+  let breakTie (p1Hand, p1Rank) (p2Hand, p2Rank) =
     if (p1Rank = HighCard && p2Rank = HighCard) then
-      let highestCard (hand: Card list) = hand |> Cards.mapCardValues 14 |> List.max
-      if highestCard p1Hand > highestCard p2Hand then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
-      elif highestCard p1Hand < highestCard p2Hand then Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
+      let highestVal (hand: Card list) = hand |> List.max |> fst
+      if highestVal p1Hand > highestVal p2Hand then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
+      elif highestVal p1Hand < highestVal p2Hand then Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
       else
-        let p1Kicker = highestCard (Cards.rmDuplicateValues p1Hand p2Hand)
-        let p2Kicker = highestCard (Cards.rmDuplicateValues p2Hand p1Hand)
+        let p1Kicker = Cards.rmDuplicateValues p1Hand p2Hand |> highestVal
+        let p2Kicker = Cards.rmDuplicateValues p2Hand p1Hand |> highestVal
         if p1Kicker > p2Kicker then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = Some p1Kicker)
         else Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = Some p2Kicker)
     else
@@ -77,5 +77,5 @@ module Hands =
     let p2Rank = rank p2Hand
     if idx p1Rank > idx p2Rank then Winner(player = P1, rank = p1Rank, hand = p1Hand, kicker = None)
     elif idx p1Rank < idx p2Rank then  Winner(player = P2, rank = p2Rank, hand = p2Hand, kicker = None)
-    else TieBreaker.decideWinner (p1Hand, p1Rank) (p2Hand, p2Rank)
+    else TieBreaker.breakTie (p1Hand, p1Rank) (p2Hand, p2Rank)
   
