@@ -46,22 +46,24 @@ module private TieBreaker =
     else Winner(P2, p2Rank, p2Hand, Some p2Kicker)
   
   let private breakWithHighestCard (p1Hand, p1Rank) (p2Hand, p2Rank) =
-    if highestVal p1Hand > highestVal p2Hand then Winner(P1, p1Rank, p1Hand, None)
-    elif highestVal p1Hand < highestVal p2Hand then Winner(P2, p2Rank, p2Hand, None)
-    else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
+    if highestVal p1Hand > highestVal p2Hand then Winner(P1, p1Rank, p1Hand, None) |> Some
+    elif highestVal p1Hand < highestVal p2Hand then Winner(P2, p2Rank, p2Hand, None) |> Some
+    else None
     
   let private breakWithHighestGroup (p1Hand, p1Rank) (p2Hand, p2Rank) =
     let p1Groups = remove (discardSingleCards p1Hand) (discardSingleCards p2Hand) 
     let p2Groups = remove (discardSingleCards p2Hand) (discardSingleCards p1Hand)
-    if  highestVal p1Groups > highestVal p2Groups then Winner(P1, p1Rank, p1Hand, None)
-    elif highestVal p1Groups < highestVal p2Groups then Winner(P2, p2Rank, p2Hand, None)
-    else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
+    if  highestVal p1Groups > highestVal p2Groups then Winner(P1, p1Rank, p1Hand, None) |> Some
+    elif highestVal p1Groups < highestVal p2Groups then Winner(P2, p2Rank, p2Hand, None) |> Some
+    else None
     
   let breakTie (p1Hand, p1Rank) (p2Hand, p2Rank) =
-    match p1Rank with
+    let winner =
+      match p1Rank with
       | HighCard | Straight | Flush | StraightFlush -> breakWithHighestCard (p1Hand, p1Rank) (p2Hand, p2Rank)
       | Pair | TwoPairs | ThreeOfAKind -> breakWithHighestGroup (p1Hand, p1Rank) (p2Hand, p2Rank)
       | _ -> breakWithHighestCard (discardSingleCards p1Hand, p1Rank) (discardSingleCards p2Hand, p2Rank)
+    if Option.isSome winner then Option.get winner else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
 
 module Hands =
   
