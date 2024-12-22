@@ -109,6 +109,11 @@ let tests = testList "Poker Hands tests" [
   testList "Ties" [
     let testCases = 
       [ ([(2,H);(3,D);(5,S);(9,C);(13,D)], [(2,D);(3,H);(5,C);(9,S);(13,C)])
+        ([(2,H);(2,D);(5,S);(4,C);(13,D)], [(2,C);(2,S);(4,H);(5,D);(13,S)])
+        ([(2,H);(2,D);(5,S);(5,C);(13,D)], [(2,C);(2,S);(5,H);(5,D);(13,S)])
+        ([(14,S);(2,D);(3,D);(4,D);(5,D)], [(14,H);(2,S);(3,S);(4,S);(5,S)])
+        ([(14,D);(2,D);(3,D);(4,D);(9,D)], [(14,S);(2,S);(3,S);(4,S);(9,S)])
+        ([(6,D);(2,D);(3,D);(4,D);(5,D)], [(6,S);(2,S);(3,S);(4,S);(5,S)])
        ]
    for p1Hand, p2Hand in testCases do
      test $"Should decide winner as tie for p1 '{p1Hand}' and p2 '{p2Hand}'" {
