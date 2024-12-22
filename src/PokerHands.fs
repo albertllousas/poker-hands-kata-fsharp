@@ -53,7 +53,7 @@ module private TieBreaker =
     
   let breakTie (p1Hand, p1Rank) (p2Hand, p2Rank) =
     match (p1Rank, p2Rank) with
-      | HighCard, HighCard | Straight, Straight | Flush, Flush ->
+      | HighCard, HighCard | Straight, Straight | Flush, Flush | StraightFlush, StraightFlush ->
         if Cards.highestVal p1Hand > Cards.highestVal p2Hand then Winner(P1, p1Rank, p1Hand, None)
         elif Cards.highestVal p1Hand < Cards.highestVal p2Hand then Winner(P2, p2Rank, p2Hand, None)
         else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)

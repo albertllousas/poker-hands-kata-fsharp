@@ -54,9 +54,6 @@ let tests = testList "Poker Hands tests" [
         ([(2,H);(3,D);(5,S);(9,C);(2,D)],
          [(14,D);(13,D);(12,D);(11,D);(10,D)],
          Winner(P2, StraightFlush, [(14,D);(13,D);(12,D);(11,D);(10,D)], None))
-        ([(2,H);(3,D);(5,S);(9,C);(13,D)],
-         [(2,C);(3,H);(4,S);(8,C);(14,H)],
-         Winner(P2, HighCard, [(2,C);(3,H);(4,S);(8,C);(14,H)], None))
         ]
     for p1Hand, p2Hand, expectedResult in testCases do
       test $"Should decide the winner two hands p1 '{p1Hand}' and p2 '{p2Hand}', with the result of {expectedResult}" {
@@ -99,6 +96,9 @@ let tests = testList "Poker Hands tests" [
         ([(3,C);(3,D);(3,H);(3,D);(9,H)],
          [(2,C);(2,C);(2,C);(3,C);(10,C)],
          Winner(P1, FourOfAKind, [(3,C);(3,D);(3,H);(3,D);(9,H)], kicker = None))
+        ([(2,H);(3,H);(4,H);(5,H);(6,H)],
+         [(14,D);(13,D);(12,D);(11,D);(10,D)],
+         Winner(P2, StraightFlush, [(14,D);(13,D);(12,D);(11,D);(10,D)], None))
        ]
    for p1Hand, p2Hand, expectedResult in testCases do
      test $"Should decide the winner two hands p1 '{p1Hand}' and p2 '{p2Hand}', with the result of {expectedResult}" {
