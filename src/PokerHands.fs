@@ -15,9 +15,6 @@ module private Cards =
   let groupByValueAndCount (cards: Card list) =
     cards |> List.map fst |> List.groupBy id |> List.map (fun (_, group) -> group.Length) |> List.sortDescending
 
-  let mapCardValues (aceValue: int) (hand: Card list)  =
-    List.map (fun (value, _) -> if value = 14 then aceValue else value) hand
-
   let haveConsecutiveValues (cards: Card list) = 
     let consecutiveCards aceValue =
       cards
@@ -36,13 +33,11 @@ module private Cards =
   let discardSingleCards (hand: Card list) =
     hand |> List.groupBy fst |> List.filter (fun (_, group) -> not (group.Length = 1)) |> List.map snd |> List.concat
     
-  let highestVal (hand: Card list) = hand |> List.map fst |> List.max
+  let highestVal (hand: Card list) = hand |> List.map fst |> fun l -> if List.isEmpty l then -1 else List.max l
 
 module private TieBreaker =
   
   open Cards
-    
-  let private maxOrNone list = if List.isEmpty list then None else Some (List.max list)  
     
   let private breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank) = 
     let p1Kicker = remove p1Hand p2Hand |> highestVal
@@ -56,22 +51,17 @@ module private TieBreaker =
     else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
     
   let private breakWithHighestGroup (p1Hand, p1Rank) (p2Hand, p2Rank) =
-    let p1Groups = discardSingleCards p1Hand  
-    let p2Groups = discardSingleCards p2Hand 
-    let p1Max = remove p1Groups p2Groups |> List.map fst |> maxOrNone
-    let p2Max = remove p2Groups p1Groups |> List.map fst |> maxOrNone
-    if p1Max.IsSome && p1Max > p2Max then Winner(P1, p1Rank, p1Hand, None)
-    elif p1Max.IsSome && p1Max < p2Max then Winner(P2, p2Rank, p2Hand, None)
+    let p1Groups = remove (discardSingleCards p1Hand) (discardSingleCards p2Hand) 
+    let p2Groups = remove (discardSingleCards p2Hand) (discardSingleCards p1Hand)
+    if  highestVal p1Groups > highestVal p2Groups then Winner(P1, p1Rank, p1Hand, None)
+    elif highestVal p1Groups < highestVal p2Groups then Winner(P2, p2Rank, p2Hand, None)
     else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
     
   let breakTie (p1Hand, p1Rank) (p2Hand, p2Rank) =
-    match (p1Rank, p2Rank) with
-      | HighCard, HighCard | Straight, Straight | Flush, Flush | StraightFlush, StraightFlush ->
-        breakWithHighestCard (p1Hand, p1Rank) (p2Hand, p2Rank)
-      | Pair, Pair | TwoPairs, TwoPairs | ThreeOfAKind, ThreeOfAKind ->
-        breakWithHighestGroup (p1Hand, p1Rank) (p2Hand, p2Rank)
-      | _ ->
-        breakWithHighestCard (discardSingleCards p1Hand, p1Rank) (discardSingleCards p2Hand, p2Rank)
+    match p1Rank with
+      | HighCard | Straight | Flush | StraightFlush -> breakWithHighestCard (p1Hand, p1Rank) (p2Hand, p2Rank)
+      | Pair | TwoPairs | ThreeOfAKind -> breakWithHighestGroup (p1Hand, p1Rank) (p2Hand, p2Rank)
+      | _ -> breakWithHighestCard (discardSingleCards p1Hand, p1Rank) (discardSingleCards p2Hand, p2Rank)
 
 module Hands =
   
