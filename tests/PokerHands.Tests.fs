@@ -105,5 +105,15 @@ let tests = testList "Poker Hands tests" [
        assertThat (Hands.decideWinner p1Hand p2Hand) expectedResult 
      }  
    ]
+  
+  testList "Ties" [
+    let testCases = 
+      [ ([(2,H);(3,D);(5,S);(9,C);(13,D)], [(2,D);(3,H);(5,C);(9,S);(13,C)])
+       ]
+   for p1Hand, p2Hand in testCases do
+     test $"Should decide winner as tie for p1 '{p1Hand}' and p2 '{p2Hand}'" {
+       assertThat (Hands.decideWinner p1Hand p2Hand) Tie 
+     }  
+   ]
 ]  
   

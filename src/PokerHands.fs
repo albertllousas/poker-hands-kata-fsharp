@@ -8,7 +8,7 @@ type Card = int * Suit
 
 type Player = P1 | P2
 
-type Winner = Winner of player: Player * rank: HandRank * hand: Card list * kicker: int option
+type Winner = Winner of player: Player * rank: HandRank * hand: Card list * kicker: int option | Tie
 
 module private Cards =
   
@@ -42,8 +42,9 @@ module private TieBreaker =
   let private breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank) = 
     let p1Kicker = remove p1Hand p2Hand |> highestVal
     let p2Kicker = remove p2Hand p1Hand |> highestVal
-    if p1Kicker > p2Kicker then Winner(P1, p1Rank, p1Hand, Some p1Kicker)
-    else Winner(P2, p2Rank, p2Hand, Some p2Kicker)
+    if p1Kicker > p2Kicker then Winner(P1, p1Rank, p1Hand, Some p1Kicker) |> Some
+    elif p1Kicker < p2Kicker then Winner(P2, p2Rank, p2Hand, Some p2Kicker) |> Some
+    else None
   
   let private breakWithHighestCard (p1Hand, p1Rank) (p2Hand, p2Rank) =
     if highestVal p1Hand > highestVal p2Hand then Winner(P1, p1Rank, p1Hand, None) |> Some
@@ -63,8 +64,11 @@ module private TieBreaker =
       | HighCard | Straight | Flush | StraightFlush -> breakWithHighestCard (p1Hand, p1Rank) (p2Hand, p2Rank)
       | Pair | TwoPairs | ThreeOfAKind -> breakWithHighestGroup (p1Hand, p1Rank) (p2Hand, p2Rank)
       | _ -> breakWithHighestCard (discardSingleCards p1Hand, p1Rank) (discardSingleCards p2Hand, p2Rank)
-    if Option.isSome winner then Option.get winner else breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
-
+    let winnerWithKicker = breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank)
+    if Option.isSome winner then Option.get winner
+    elif Option.isSome winnerWithKicker then Option.get winnerWithKicker
+    else Tie
+      
 module Hands =
   
   let rank (hand: Card list) =
