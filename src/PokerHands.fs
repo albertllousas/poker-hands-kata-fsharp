@@ -41,9 +41,6 @@ module private Cards =
 module private TieBreaker =
   
   open Cards
-  
-  let private valueToCard (value: int) =
-    match value with | 14 -> "A" | 1 -> "A" | 13 -> "K" | 12 -> "Q" | 11 -> "J" | _ -> value.ToString()
     
   let private maxOrNone list = if List.isEmpty list then None else Some (List.max list)  
     
