@@ -26,7 +26,7 @@ module private Cards =
     
   let haveSameSuit (cards: Card list) = cards |> List.map snd |> List.distinct |> List.length = 1
     
-  let remove (cards: Card list) (toRemove: Card list ) =
+  let removeFrom (cards: Card list) (toRemove: Card list ) =
     let valuesToRemove = List.map fst toRemove
     List.filter (fun (value, _) -> not (List.contains value valuesToRemove)) cards
   
@@ -40,8 +40,8 @@ module private TieBreaker =
   open Cards
     
   let private breakWithKicker (p1Hand, p1Rank) (p2Hand, p2Rank) = 
-    let p1Kicker = remove p1Hand p2Hand |> highestVal
-    let p2Kicker = remove p2Hand p1Hand |> highestVal
+    let p1Kicker = removeFrom p1Hand p2Hand |> highestVal
+    let p2Kicker = removeFrom p2Hand p1Hand |> highestVal
     if p1Kicker > p2Kicker then Winner(P1, p1Rank, p1Hand, Some p1Kicker) |> Some
     elif p1Kicker < p2Kicker then Winner(P2, p2Rank, p2Hand, Some p2Kicker) |> Some
     else None
@@ -52,8 +52,8 @@ module private TieBreaker =
     else None
     
   let private breakWithHighestGroup (p1Hand, p1Rank) (p2Hand, p2Rank) =
-    let p1Groups = remove (discardSingleCards p1Hand) (discardSingleCards p2Hand) 
-    let p2Groups = remove (discardSingleCards p2Hand) (discardSingleCards p1Hand)
+    let p1Groups = removeFrom (discardSingleCards p1Hand) (discardSingleCards p2Hand) 
+    let p2Groups = removeFrom (discardSingleCards p2Hand) (discardSingleCards p1Hand)
     if  highestVal p1Groups > highestVal p2Groups then Winner(P1, p1Rank, p1Hand, None) |> Some
     elif highestVal p1Groups < highestVal p2Groups then Winner(P2, p2Rank, p2Hand, None) |> Some
     else None
